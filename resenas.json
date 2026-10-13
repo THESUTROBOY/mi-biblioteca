@@ -1,0 +1,76 @@
+{
+  "zonas": {
+    "rating": 5,
+    "updated": 1791865347907
+  },
+  "atomicos": {
+    "rating": 5,
+    "updated": 1791865409089
+  },
+  "ahora": {
+    "rating": 4,
+    "updated": 1791865357840
+  },
+  "disciplina": {
+    "rating": 4,
+    "updated": 1791865360190
+  },
+  "miedo": {
+    "rating": 1,
+    "updated": 1791865362157
+  },
+  "monje": {
+    "rating": 2,
+    "updated": 1791865364224
+  },
+  "piense": {
+    "rating": 2,
+    "updated": 1791865366124
+  },
+  "oscura": {},
+  "sutil": {
+    "rating": 5,
+    "updated": 1791865370874
+  },
+  "depresion": {},
+  "despertar": {
+    "rating": 3,
+    "updated": 1791865383407
+  },
+  "salvaran": {
+    "rating": 2,
+    "updated": 1791865393223
+  },
+  "h7": {
+    "rating": 3,
+    "updated": 1791865397540
+  },
+  "claridad": {},
+  "metodo": {},
+  "suerte": {
+    "rating": 3,
+    "updated": 1791865406723
+  },
+  "amigos": {
+    "rating": 4,
+    "updated": 1791865412573
+  },
+  "cosas": {
+    "rating": 5,
+    "updated": 1791865414789
+  },
+  "vitamina": {
+    "rating": 4,
+    "updated": 1791865416840
+  },
+  "crees": {
+    "rating": 5,
+    "updated": 1791865418889
+  },
+  "recupera": {
+    "rating": 4,
+    "updated": 1791865421356
+  },
+  "buena": {},
+  "comer": {}
+}
