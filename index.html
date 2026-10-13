@@ -417,7 +417,7 @@ function spineTexture(b, renderer){
 }
 function coverTexture(b, renderer){
   return new Promise(res=>{ const im=new Image(); im.onload=()=>{
-    const Hc=768, Wc=Math.round(512*b.L/(b.L*b.aspect)); // canvas x = largo del libro, y = ancho
+    const Hc=1024, Wc=Math.round(512*b.L/(b.L*b.aspect)); // canvas x = largo del libro, y = ancho
     const c=document.createElement('canvas'); c.width=Math.round(Hc/b.aspect); c.height=Hc;
     // canvas.width ↔ eje X (largo), canvas.height ↔ eje Z (ancho de tapa)
     const cw=c.width, ch=c.height, x=c.getContext('2d');
@@ -604,7 +604,7 @@ function makeCoin(kind){
 /* ============ Escena ============ */
 const stage=$('#stage'), tip=$('#tip');
 const renderer=new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:'high-performance'});
-renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
 renderer.outputEncoding=THREE.sRGBEncoding; renderer.toneMapping=THREE.NoToneMapping;
 renderer.shadowMap.enabled=true; renderer.shadowMap.type=THREE.PCFSoftShadowMap;
 stage.appendChild(renderer.domElement);
@@ -619,7 +619,7 @@ const camera=new THREE.PerspectiveCamera(28,1,.1,200);
 
 scene.add(new THREE.HemisphereLight(0xfff3e2,0x3a2216,.62));
 const key=new THREE.DirectionalLight(0xffeedd,.62); key.position.set(-5,16,13); key.castShadow=true;
-key.shadow.mapSize.set(1024,1024); Object.assign(key.shadow.camera,{left:-11,right:11,top:14,bottom:-6,near:1,far:45}); key.shadow.bias=-.0004; key.shadow.radius=4; scene.add(key);
+key.shadow.mapSize.set(2048,2048); Object.assign(key.shadow.camera,{left:-11,right:11,top:14,bottom:-6,near:1,far:45}); key.shadow.bias=-.0004; key.shadow.radius=4; scene.add(key);
 const fill=new THREE.PointLight(0xffd9b0,.22,40); fill.position.set(8,7,8); scene.add(fill);
 
 // paredes en esquina, como en la foto
