@@ -635,14 +635,14 @@ const wood=new THREE.MeshStandardMaterial({map:woodTexture(),roughness:.42,metal
 const dresserTop=new THREE.Mesh(new THREE.BoxGeometry(24,.5,11),wood); dresserTop.position.set(-1,-.25,.3); dresserTop.receiveShadow=true; scene.add(dresserTop);
 const apron=new THREE.Mesh(new THREE.BoxGeometry(23.4,3,.4),new THREE.MeshStandardMaterial({color:0x2e170d,roughness:.6})); apron.position.set(-1,-2,5.4); scene.add(apron);
 // monedas: $100 y $10, como en la foto
-const coin100=makeCoin('100'); coin100.position.set(-4.3,.025,2.75); coin100.rotation.y=.4; scene.add(coin100);
-const coin10=makeCoin('10'); coin10.position.set(-4.07,.075,2.62); coin10.rotation.set(.04,-.6,.03); scene.add(coin10);
+const coin100=makeCoin('100'); coin100.position.set(-3.35,.025,2.75); coin100.rotation.y=.4; scene.add(coin100);
+const coin10=makeCoin('10'); coin10.position.set(-3.12,.075,2.62); coin10.rotation.set(.04,-.6,.03); scene.add(coin10);
 
 // autitos (diseños propios, escala maqueta)
 function placeCar(spec,x,z,ry){ const w=new THREE.Group(), car=makeCar(spec); car.position.x=-spec.len/2; w.add(car); w.scale.setScalar(.47); w.position.set(x,0,z); w.rotation.y=ry; scene.add(w); return w; }
-placeCar(CAR_A,-6.1,1.6,Math.PI/2+.75);
-placeCar(CAR_B,5.8,0.3,Math.PI/2-.55);
-placeCar(CAR_C,5.5,3.2,Math.PI/2-.95);
+placeCar(CAR_A,-5.0,1.4,Math.PI/2+.75);
+placeCar(CAR_B,4.7,0.2,Math.PI/2-.55);
+placeCar(CAR_C,4.6,2.9,Math.PI/2-.95);
 
 /* Pila de libros */
 let seed=7; const rnd=()=>((seed=(seed*16807)%2147483647)/2147483647);
@@ -653,7 +653,7 @@ async function buildStack(){
   const pages=new THREE.MeshStandardMaterial({map:pagesTexture(),roughness:.95});
   let y=0;
   for(const b of STACK){
-    const L=b.L*SC*1.32, T=b.T*SC*1.05, D=L*b.aspect;
+    const L=b.L*SC, T=b.T*SC*1.05, D=L*b.aspect;
     const spineMat=new THREE.MeshStandardMaterial({map:spineTexture(b,renderer),roughness:.55,metalness:0});
     const coverMat=new THREE.MeshStandardMaterial({map:await coverTexture(b,renderer),roughness:.5});
     const backMat=new THREE.MeshStandardMaterial({color:new THREE.Color(b.spine.bg),roughness:.6});
@@ -678,10 +678,10 @@ const view={az:HOME.az,el:HOME.el,taz:HOME.az,tel:HOME.el,dist:40,tdist:40};
 const target=new THREE.Vector3();
 function fit(){
   const w=stage.clientWidth, h=stage.clientHeight; renderer.setSize(w,h,false); camera.aspect=w/h; camera.updateProjectionMatrix();
-  const needH=stackH+2.6, needW=camera.aspect<.9?10.2:14;
+  const needH=stackH+5.2, needW=camera.aspect<.9?10.2:14;
   const tanV=Math.tan(camera.fov*Math.PI/360), tanH=tanV*camera.aspect;
   view.tdist=Math.max(needH/2/tanV, needW/2/tanH)+2;
-  target.set(0.1, stackH*.5, .6);
+  target.set(0.1, stackH*.43, .6);
 }
 function placeCam(){
   const k=.08; view.az+=(view.taz-view.az)*k; view.el+=(view.tel-view.el)*k; view.dist+=(view.tdist-view.dist)*k;
