@@ -124,8 +124,6 @@ textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(200,69,47,.1
 .empty-list{grid-column:1/-1;color:var(--muted-on-dark);font-size:14px;padding:18px;border:1px dashed rgba(255,255,255,.15);border-radius:12px;text-align:center}
 .flipbtn{display:inline-flex;align-items:center;gap:6px;margin:0 0 14px;border:1px solid var(--line);background:#fffaf2;border-radius:999px;padding:7px 13px;font-size:13px;font-weight:600;color:var(--ink);cursor:pointer}
 .flipbtn:hover{background:var(--paper2)}
-.handhint{font-size:12px;color:var(--ink-soft);margin:0 0 8px;padding-right:40px}
-@media (hover:none){.handhint{display:none}}
 .list{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:8px}
 .li{display:flex;align-items:center;gap:12px;text-align:left;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:8px 12px 8px 8px;cursor:pointer;transition:background .2s,border-color .2s}
 .li:hover,.li.sel{background:rgba(255,255,255,.09);border-color:rgba(227,167,47,.5)}
@@ -608,7 +606,7 @@ const stage=$('#stage'), tip=$('#tip');
 const renderer=new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:'high-performance'});
 renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));
 renderer.outputEncoding=THREE.sRGBEncoding; renderer.toneMapping=THREE.NoToneMapping;
-renderer.shadowMap.enabled=true; renderer.shadowMap.type=THREE.PCFShadowMap;
+renderer.shadowMap.enabled=true; renderer.shadowMap.type=THREE.PCFSoftShadowMap;
 stage.appendChild(renderer.domElement);
 const scene=new THREE.Scene(); scene.background=new THREE.Color(0x2b1d16);
 const camera=new THREE.PerspectiveCamera(28,1,.1,200);
@@ -621,7 +619,7 @@ const camera=new THREE.PerspectiveCamera(28,1,.1,200);
 
 scene.add(new THREE.HemisphereLight(0xfff3e2,0x3a2216,.62));
 const key=new THREE.DirectionalLight(0xffeedd,.62); key.position.set(-5,16,13); key.castShadow=true;
-key.shadow.mapSize.set(1024,1024); renderer.shadowMap.autoUpdate=false; Object.assign(key.shadow.camera,{left:-11,right:11,top:14,bottom:-6,near:1,far:45}); key.shadow.bias=-.0004; key.shadow.radius=4; scene.add(key);
+key.shadow.mapSize.set(1024,1024); Object.assign(key.shadow.camera,{left:-11,right:11,top:14,bottom:-6,near:1,far:45}); key.shadow.bias=-.0004; key.shadow.radius=4; scene.add(key);
 const fill=new THREE.PointLight(0xffd9b0,.22,40); fill.position.set(8,7,8); scene.add(fill);
 
 // paredes en esquina, como en la foto
@@ -633,19 +631,14 @@ const wB=new THREE.Mesh(new THREE.PlaneGeometry(40,30),wallMat.clone()); wB.mate
 // cómoda
 const wood=new THREE.MeshStandardMaterial({map:woodTexture(),roughness:.42,metalness:.05});
 const dresserTop=new THREE.Mesh(new THREE.BoxGeometry(24,.5,11),wood); dresserTop.position.set(-1,-.25,.3); dresserTop.receiveShadow=true; scene.add(dresserTop);
-const bodyWood=new THREE.MeshStandardMaterial({map:woodTexture(),color:0x8a6a5a,roughness:.5});
-const dresserBody=new THREE.Mesh(new THREE.BoxGeometry(23.4,7.5,10.4),bodyWood); dresserBody.position.set(-1,-4.25,.25); dresserBody.receiveShadow=true; scene.add(dresserBody);
-// cajones: líneas y tiradores
-for(let i=0;i<3;i++){ const gap=new THREE.Mesh(new THREE.BoxGeometry(23.2,.06,.05),new THREE.MeshStandardMaterial({color:0x1a0c06})); gap.position.set(-1,-1.6-i*2.2,5.47); scene.add(gap);
-  [-6,4].forEach(x=>{ const h=new THREE.Mesh(new THREE.CylinderGeometry(.16,.16,.12,24),new THREE.MeshStandardMaterial({color:0xb08d57,metalness:1,roughness:.3})); h.rotation.x=Math.PI/2; h.position.set(x,-.9-i*2.2,5.5); scene.add(h); }); }
-const floor=new THREE.Mesh(new THREE.PlaneGeometry(120,120),new THREE.MeshStandardMaterial({color:0x3b2a20,roughness:.9})); floor.rotation.x=-Math.PI/2; floor.position.y=-8; floor.receiveShadow=true; scene.add(floor);
+const apron=new THREE.Mesh(new THREE.BoxGeometry(23.4,3,.4),new THREE.MeshStandardMaterial({color:0x2e170d,roughness:.6})); apron.position.set(-1,-2,5.4); scene.add(apron);
 // monedas: $100 y $10, como en la foto
 const coin100=makeCoin('100'); coin100.position.set(-3.35,.025,2.75); coin100.rotation.y=.4; scene.add(coin100);
 const coin10=makeCoin('10'); coin10.position.set(-3.12,.075,2.62); coin10.rotation.set(.04,-.6,.03); scene.add(coin10);
 
 // autitos (diseños propios, escala maqueta)
 function placeCar(spec,x,z,ry){ const w=new THREE.Group(), car=makeCar(spec); car.position.x=-spec.len/2; w.add(car); w.scale.setScalar(.47); w.position.set(x,0,z); w.rotation.y=ry; scene.add(w); return w; }
-placeCar(CAR_A,-5.0,1.5,Math.PI/2+.75);
+placeCar(CAR_A,-5.0,1.4,Math.PI/2+.75);
 placeCar(CAR_B,4.7,0.2,Math.PI/2-.55);
 placeCar(CAR_C,4.6,2.9,Math.PI/2-.95);
 
@@ -678,40 +671,27 @@ async function buildStack(){
 }
 
 /* ============ Cámara orbital ============ */
-const HOME={az:.62,el:.36};
-const view={az:HOME.az,el:HOME.el,taz:HOME.az,tel:HOME.el,dist:60,tdist:60,base:60,zoom:1};
+const HOME={az:.26,el:.17};
+const view={az:HOME.az,el:HOME.el,taz:HOME.az,tel:HOME.el,dist:40,tdist:40};
 const target=new THREE.Vector3();
 function fit(){
   const w=stage.clientWidth, h=stage.clientHeight; renderer.setSize(w,h,false); camera.aspect=w/h; camera.updateProjectionMatrix();
-  const needH=stackH+6.8, needW=camera.aspect<.9?11.5:16;
+  const needH=stackH+5.2, needW=camera.aspect<.9?10.2:14;
   const tanV=Math.tan(camera.fov*Math.PI/360), tanH=tanV*camera.aspect;
-  view.base=Math.max(needH/2/tanV, needW/2/tanH)+3;
-  target.set(0.1, stackH*.4, .6);
+  view.tdist=Math.max(needH/2/tanV, needW/2/tanH)+2;
+  target.set(0.1, stackH*.43, .6);
 }
-// paredes: el plano A (z = C.z, normal +z) y el plano B (normal hacia la habitación)
-const WALL_B_N=new THREE.Vector3(Math.sin(ang),0,Math.cos(ang));
-function keepInRoom(p){
-  const m=1.2;
-  if(p.z < C.z+m) p.z=C.z+m;
-  const d=p.clone().sub(C).dot(WALL_B_N); if(d<m) p.addScaledVector(WALL_B_N,m-d);
-  if(p.y<.6) p.y=.6;
-  return p;
-}
-let hoverZoomTimer=null;
 function placeCam(){
-  // acercamiento suave al pasar sobre un libro
-  if(hoverId && !hero && !view.zoomed){ view.zoomed=true; $('#reset').classList.add('on'); }
-  const wantZoom = view.zoomed ? .82 : 1;
-  view.zoom += (wantZoom-view.zoom)*.03;
-  view.tdist = view.base*view.zoom;
   const k=.08; view.az+=(view.taz-view.az)*k; view.el+=(view.tel-view.el)*k; view.dist+=(view.tdist-view.dist)*k;
-  const sway=0;
-  const look=target;
-  const p=new THREE.Vector3(look.x+view.dist*Math.cos(view.el)*Math.sin(view.az+sway), look.y+view.dist*Math.sin(view.el), look.z+view.dist*Math.cos(view.el)*Math.cos(view.az+sway));
-  camera.position.lerp(keepInRoom(p), camera.userData.init?0.18:1); camera.userData.init=1;
-  camera.lookAt(look); camera.updateMatrixWorld();
+  const sway=(dragging||hero)?0:Math.sin(performance.now()/4200)*.015;
+  const p=new THREE.Vector3(target.x+view.dist*Math.cos(view.el)*Math.sin(view.az+sway), target.y+view.dist*Math.sin(view.el), target.z+view.dist*Math.cos(view.el)*Math.cos(view.az+sway));
+  camera.position.copy(keepInRoom(p));
+  camera.lookAt(target); camera.updateMatrixWorld();
 }
-function resetView(){ view.taz=HOME.az; view.tel=HOME.el; view.zoomed=false; needRender(); $('#reset').classList.remove('on'); }
+// paredes: la cámara nunca las atraviesa
+const WALL_B_N=new THREE.Vector3(Math.sin(ang),0,Math.cos(ang));
+function keepInRoom(p){ const m=1.2; if(p.z<C.z+m) p.z=C.z+m; const d=p.clone().sub(C).dot(WALL_B_N); if(d<m) p.addScaledVector(WALL_B_N,m-d); if(p.y<.6) p.y=.6; return p; }
+function resetView(){ view.taz=HOME.az; view.tel=HOME.el; $('#reset').classList.remove('on'); }
 
 /* ============ Interacción con la pila ============ */
 const ray=new THREE.Raycaster(), mouse=new THREE.Vector2();
@@ -743,7 +723,7 @@ window.addEventListener('pointerup',e=>{
 renderer.domElement.addEventListener('pointerleave',()=>{ if(!kbId) setHover(null); });
 $('#reset').onclick=resetView;
 let kbId=null;
-function setHover(id){ if(id===hoverId) return; hoverId=id; needRender(); stage.classList.toggle('pointing',!!id); if(id){ const b=bookObjs[id].b; tip.textContent=b.short||b.title; } tip.classList.toggle('on',!!id); }
+function setHover(id){ if(id===hoverId) return; hoverId=id; stage.classList.toggle('pointing',!!id); if(id){ const b=bookObjs[id].b; tip.textContent=b.short||b.title; } tip.classList.toggle('on',!!id); }
 
 /* ============ Libro en mano: tomarlo y darlo vuelta ============ */
 const ease=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
@@ -825,7 +805,7 @@ function openBook(id){
   const o=bookObjs[id]; setHover(null);
   const g=buildHero(o); const s=stackPose(o);
   g.position.copy(s.p); g.quaternion.copy(s.q);
-  o.mesh.visible=false; o.out=0; o.slide.position.set(0,0,0); needRender();
+  o.mesh.visible=false; o.out=0; o.slide.position.set(0,0,0);
   const outDir=new THREE.Vector3(0,0,1).applyQuaternion(o.holder.quaternion);
   hero={id,o,g,state:'fly',t:0,from:s,outDir,shown:false,flip:0,flipTarget:0,dragYaw:0,dragPitch:0}; o.__yaw=0; o.__pitch=0;
   dimmer.visible=true; document.body.classList.add('reading');
@@ -870,7 +850,6 @@ function updateHero(now){
     if(h.t>=1){ h.state='shown'; }
   } else if(h.state==='shown'){
     h.flip += (h.flipTarget-h.flip)*.12;
-    // flotando en el aire: balanceo suave + lo que el usuario lo gire con el mouse/dedo
     const now=performance.now()/1000;
     if(!heroDrag){ h.dragYaw*=.92; h.dragPitch*=.92; }
     o.__yaw = h.dragYaw + Math.sin(now*.7)*.07; o.__pitch = h.dragPitch + Math.sin(now*.9)*.035;
@@ -891,31 +870,21 @@ function updateHero(now){
     h.g.position.copy(a.lerp(b2,k));
     h.g.quaternion.copy(h.start.q).slerp(s.q,ease(clamp01(h.t/.8)));
     dimmer.material.opacity=.62*(1-t);
-    if(h.t>=1){ heroScene.remove(h.g); o.mesh.visible=true; needRender(); hero=null; selId=null; renderList(); document.body.classList.remove('reading');
+    if(h.t>=1){ heroScene.remove(h.g); o.mesh.visible=true; hero=null; selId=null; renderList(); document.body.classList.remove('reading');
       try{ history.replaceState(null,'',location.pathname+location.search); }catch(e){} }
   }
 }
 
 function updateBooks(){
-  let moving=false;
   for(const id in bookObjs){ const o=bookObjs[id];
     o.target = (!hero && id===hoverId) ? o.D*.24 : 0;
-    const prev=o.out; o.out += (o.target-o.out)*.14; if(Math.abs(o.target-o.out)<1e-4) o.out=o.target; if(o.out!==prev) moving=true;
+    o.out += (o.target-o.out)*.14;
     o.slide.position.z=o.out; o.slide.rotation.y=-o.out*.06; o.slide.position.y=o.out*.02;
     o.spineMat.emissive.setScalar((!hero && id===hoverId)?.07:0); }
   if(hoverId && !hero){ const o=bookObjs[hoverId]; const p=new THREE.Vector3(0,o.T/2,o.D/2); o.mesh.localToWorld(p); p.project(camera);
     tip.style.left=((p.x+1)/2*100)+'%'; tip.style.top=((1-p.y)/2*100)+'%'; }
-  return moving;
 }
-let dirty=3, lastCam=new THREE.Vector3(), lastQ=new THREE.Quaternion();
-function needRender(){ dirty=Math.max(dirty,2); }
-function loop(now){ if(document.hidden || window.scrollY>innerHeight*1.1 && !hero){ requestAnimationFrame(loop); return; } placeCam(); updateHero(now||performance.now()); const moving=updateBooks();
-  const camMoved = camera.position.distanceToSquared(lastCam)>1e-7 || 1-Math.abs(camera.quaternion.dot(lastQ))>1e-9;
-  lastCam.copy(camera.position); lastQ.copy(camera.quaternion);
-  if(moving){ renderer.shadowMap.needsUpdate=true; }
-  if(!(camMoved||moving||hero||dimmer.visible||dirty>0)){ requestAnimationFrame(loop); return; }
-  if(dirty>0) dirty--;
-  if(dirty>0) renderer.shadowMap.needsUpdate=true;
+function loop(now){ if(document.hidden || (window.scrollY>innerHeight*1.1 && !hero)){ requestAnimationFrame(loop); return; } placeCam(); updateHero(now||performance.now()); updateBooks();
   dimmer.position.copy(camera.position).add(new THREE.Vector3(0,0,-3).applyQuaternion(camera.quaternion)); dimmer.quaternion.copy(camera.quaternion);
   renderer.clear(); renderer.render(scene,camera);
   if(hero){ renderer.clearDepth(); renderer.render(heroScene,camera); }
@@ -936,7 +905,6 @@ function renderDetail(swap){
       <button class="btn ghost" id="cEdit">${r.comment?'Editar comentario':'✎ Escribir comentario'}</button></div>`;
   const host=$('#detailHost'); host.style.setProperty('--dot',b.dot);
   host.innerHTML=`
-      
       <button class="flipbtn" id="flipBtn">${hero&&hero.flipTarget?'↻ Ver la portada':'↻ Ver la contraportada'}</button>
       <div class="kicker"><span class="pill num">${i+1} / ${BOOKS.length}</span><span class="pill">${esc(b.genre)}</span>${b.extra?'<span class="pill new">Nuevo en la pila</span>':''}</div>
       <h2>${esc(b.title)}</h2>
@@ -1019,9 +987,9 @@ document.addEventListener('keydown',e=>{ if(e.target.matches('textarea,input,but
 (async()=>{
   renderStats(); renderList();
   try{ await Promise.race([Promise.all([`600 40px Oswald`,`500 40px Oswald`,`400 40px Fraunces`,`italic 400 40px Fraunces`,`600 40px Fraunces`,`700 40px Fraunces`,`700 40px "Instrument Sans"`,`400 40px "Instrument Sans"`].map(f=>document.fonts.load(f))), new Promise(r=>setTimeout(r,2500))]); }catch(e){}
-  await buildStack(); fit(); view.dist=view.base*1.35; requestAnimationFrame(loop);
+  await buildStack(); fit(); view.dist=view.tdist*1.3; requestAnimationFrame(loop);
   $('#loading').classList.add('off');
-  new ResizeObserver(()=>{ fit(); needRender(); }).observe(stage);
+  new ResizeObserver(fit).observe(stage);
   const start=decodeURIComponent(location.hash.slice(1)); if(bookObjs[start]) setTimeout(()=>openBook(start),900);
 })();
 </script>
