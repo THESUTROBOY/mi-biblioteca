@@ -4,6 +4,15 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Mi Biblioteca</title>
+<meta name="theme-color" content="#1a1310">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Mi Biblioteca">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+
 <meta name="description" content="Mi biblioteca en 3D: toma un libro de la pila para ver de qué trata, sus premios y mi reseña.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -154,6 +163,13 @@ footer button:hover{background:rgba(255,255,255,.12)}
   .wrap{padding:28px 16px 32px}
 }
 @media (prefers-reduced-motion:reduce){.reader{transition:opacity .2s}}
+
+/* modo app (agregada a la pantalla de inicio) */
+html,body{overscroll-behavior:none}
+.hud{padding-top:max(24px,calc(env(safe-area-inset-top) + 10px))}
+.bottom{bottom:max(18px,calc(env(safe-area-inset-bottom) + 8px))}
+.reset{bottom:max(22px,calc(env(safe-area-inset-bottom) + 12px))}
+@media (display-mode: standalone){ body{-webkit-user-select:none;user-select:none} textarea{-webkit-user-select:text;user-select:text} }
 </style>
 </head>
 <body>
@@ -995,5 +1011,6 @@ document.addEventListener('keydown',e=>{ if(e.target.matches('textarea,input,but
   const start=decodeURIComponent(location.hash.slice(1)); if(bookObjs[start]) setTimeout(()=>openBook(start),900);
 })();
 </script>
+<script>if('serviceWorker' in navigator && location.protocol.startsWith('http')) addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));</script>
 </body>
 </html>
